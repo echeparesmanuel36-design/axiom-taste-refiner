@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Axiom Taste Refiner — Prompt Architecture</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Colores de Colección IA: Fondo oscuro abisal y detalles ciber-eléctricos */
+            --bg-color: #06070B;
+            --surface-color: rgba(17, 18, 26, 0.95);
+            --text-main: #F5F5F7;
+            --text-muted: #8E8E93;
+            --accent-glow-1: #00f2fe; /* Cyan Eléctrico */
+            --accent-glow-2: #9b51e0; /* Violeta Cuántico */
+            --border-color: rgba(255, 255, 255, 0.08);
+            --code-bg: #11121A;
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* --- 1. CAPAS DE GRADIENTES AGRESIVOS DE FONDO (Para que luzca la refracción física) --- */
+        .background-blob-1 {
+            position: absolute;
+            top: 25%;
+            left: 15%;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, var(--accent-glow-1) 0%, transparent 70%);
+            opacity: 0.25;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .background-blob-2 {
+            position: absolute;
+            top: 35%;
+            right: 15%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--accent-glow-2) 0%, transparent 70%);
+            opacity: 0.22;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        header {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .logo {
+            font-weight: 600;
+            font-size: 13px;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+        }
+
+        main {
+            max-width: 900px;
+            width: 100%;
+            margin: auto;
+            padding: 20px 24px 80px 24px;
+            text-align: center;
+            z-index: 5;
+        }
+
+        .category-tag {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            display: block;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 400;
+            font-size: 52px;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+            margin-bottom: 24px;
+        }
+
+        .subtitle {
+            font-size: 17px;
+            color: var(--text-muted);
+            line-height: 1.65;
+            max-width: 620px;
+            margin: 0 auto 48px auto;
+            font-weight: 300;
+        }
+
+        /* --- 2. CONTENEDOR ESCENA DEL CRISTAL (Contiene la UI interactiva) --- */
+        .glass-scene {
+            position: relative;
+            width: 100%;
+            max-width: 750px;
+            margin: 0 auto 48px auto;
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border-color);
+        }
+
+        /* El panel visual interno que se posiciona detrás de la refracción */
+        .glass-bg {
+            background-color: var(--surface-color);
+            padding: 40px;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* El contenedor exacto donde el script inyectará la lente SVG de refracción */
+        .glass-wrapper {
+            position: absolute;
+            inset: 0;
+            pointer-events: none; /* Crucial: permite hacer clic en los inputs y botones traseros */
+            z-index: 10;
+        }
+
+        label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        textarea, select {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        textarea:focus, select:focus {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .grid-inputs {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .grid-inputs { grid-template-columns: 1fr; }
+        }
+
+        .action-row {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .refine-btn {
+            background-color: var(--text-main);
+            color: var(--bg-color);
+            border: 1px solid var(--text-main);
+            padding: 14px 28px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        .refine-btn:hover {
+            background-color: transparent;
+            color: var(--text-main);
+        }
+
+        .output-box {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 24px;
+            position: relative;
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .copy-btn:hover { color: var(--text-main); }
+
+        pre {
+            overflow-x: auto;
+            margin: 0;
+        }
+
+        code {
+            font-family: monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #A9B2C3;
+            white-space: pre-wrap;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: transparent;
+            color: var(--text-main);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 18px 40px;
+            font-size: 11px;
+            font-weight: 500;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            border-radius: 2px;
+            transition: var(--transition);
+        }
+
+        .cta-button:hover {
+            border-color: var(--text-main);
+            background-color: var(--text-main);
+            color: var(--bg-color);
+        }
+
+        footer {
+            padding: 40px 24px;
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border-top: 1px solid var(--border-color);
+            width: 100%;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background-blob-1"></div>
+    <div class="background-blob-2"></div>
+
+    <header>
+        <div class="logo">Axiom Systems</div>
+    </header>
+
+    <main>
+        <span class="category-tag">Cognitive Architecture Series</span>
+        <h1>The Art of AI Taste</h1>
+        <p class="subtitle">Infuse high-fidelity personality layers into your raw instructions. Elevate outputs, bypass generic AI writing, and command complete stylistic sovereignty.</p>
+
+        <div class="glass-scene" id="glassScene">
+            
+            <div class="glass-bg">
+                <div class="grid-inputs">
+                    <div>
+                        <label for="rawPrompt">Raw Base Prompt</label>
+                        <textarea id="rawPrompt" rows="3" placeholder="Paste your generic prompt here (e.g., 'Write a description for a coffee brand')"></textarea>
+                    </div>
+                    <div>
+                        <label for="tasteStyle">Style Filter</label>
+                        <select id="tasteStyle">
+                            <option value="premium">Premium Luxury</option>
+                            <option value="cyberpunk">Cyberpunk Industrial</option>
+                            <option value="hacker">Offensive Hacker</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="action-row">
+                    <button class="refine-btn" id="refineBtn">Inject Taste Layer</button>
+                </div>
+
+                <div class="output-box">
+                    <div class="output-header">
+                        <label>Optimized Structural Prompt</label>
+                        <button class="copy-btn" id="copyBtn">Copy Prompt</button>
+                    </div>
+                    <pre><code id="outputCode">// Your refined architectural prompt will display here instantly...</code></pre>
+                </div>
+            </div>
+
+            <div class="glass-wrapper" id="glassWrapper"></div>
+            
+        </div>
+
+        <a href="https://github.com/echeparesmanuel36-design/axiom-taste-refiner" class="cta-button">Access Repository</a>
+    </main>
+
+    <footer>
+        © 2026 Axiom Systems. Built for absolute precision.
+    </footer>
+    <script>
+        // --- 1. LÓGICA LOCAL PARA REFINAR EL PROMPT (Axiom Taste Engine) ---
+        const TASTE_MATRICES = {
+            premium: {
+                prefix: "Actúa como un estratega de alta costura, director creativo de marcas de lujo tipo Louis Vuitton o Apple.",
+                suffix: "Evita explicaciones obvias, listas genéricas y muletillas de IA. Usa una estructura minimalista, directa, con impacto visual y un tono corporativo de élite."
+            },
+            cyberpunk: {
+                prefix: "Adopta la personalidad de un ingeniero de sistemas clandestino en un entorno industrial hiper-tecnológico.",
+                suffix: "Introduce terminología técnica cruda, estética de consola y un tono frío, analítico y directo al grano, sin rodeos corporativos tradicionales."
+            },
+            hacker: {
+                prefix: "Actúa como un auditor senior de seguridad ofensiva enfocado en la máxima eficiencia de ejecución.",
+                suffix: "Devuelve la información estructurada como un reporte táctico o bloques legibles de código. Cero introducciones vacías, ve directo al núcleo del problema."
+            }
+        };
+
+        const rawPromptInput = document.getElementById('rawPrompt');
+        const tasteStyleSelect = document.getElementById('tasteStyle');
+        const refineBtn = document.getElementById('refineBtn');
+        const outputCode = document.getElementById('outputCode');
+        const copyBtn = document.getElementById('copyBtn');
+
+        refineBtn.addEventListener('click', () => {
+            const rawText = rawPromptInput.value.trim();
+            if (!rawText) {
+                outputCode.innerText = "// Please write or paste a raw prompt inside the input box first.";
+                return;
+            }
+            const style = tasteStyleSelect.value;
+            const matrix = TASTE_MATRICES[style];
+            
+            // Inyección de estructura y formateo limpio en pantalla
+            const refinedResult = `${matrix.prefix}\n\n[INSTRUCCIÓN CENTRAL]:\n"${rawText}"\n\n[REGLAS DE OUTPUT]:\n${matrix.suffix}`;
+            outputCode.innerText = refinedResult;
+        });
+
+        // Copiado rápido premium
+        copyBtn.addEventListener('click', () => {
+            const codeText = outputCode.innerText;
+            if (codeText.startsWith('//')) return;
+            navigator.clipboard.writeText(codeText).then(() => {
+                copyBtn.innerText = 'Copied!';
+                setTimeout(() => { copyBtn.innerText = 'Copy Prompt'; }, 2000);
+            });
+        });
+
+        // --- 2. NÚCLEO MATEMÁTICO DE REFRACCIÓN DE CRISTAL (AaveStyle Engine) ---
+        function applyAaveGlass() {
+            const wrapper = document.getElementById('glassWrapper');
+            const scene = document.getElementById('glassScene');
+            
+            // Medimos las dimensiones exactas del contenedor en tiempo real
+            const w = scene.offsetWidth;
+            const h = scene.offsetHeight;
+
+            // Creamos el lienzo oculto en memoria para renderizar el mapa binario de distorsión
+            const canvas = document.createElement('canvas');
+            canvas.width = w; 
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            
+            // Gris neutro (128) = Cero distorsión en feDisplacementMap
+            ctx.fillStyle = '#808080';
+            ctx.fillRect(0, 0, w, h);
+            
+            const imgData = ctx.getImageData(0, 0, w, h);
+            const centerX = w / 2;
+            const centerY = h / 2;
+            // El radio de refracción se adapta de manera orgánica al tamaño del contenedor
+            const radius = Math.min(w, h) * 0.45;
+
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    const dx = x - centerX;
+                    const dy = y - centerY;
+                    const dist = Math.hypot(dx, dy);
+                    
+                    if (dist < radius) {
+                        const i = (y * w + x) * 4;
+                        // Modificación matemática de canales cromáticos: Rojo (Eje X) y Verde (Eje Y)
+                        imgData.data[i]   = 128 + (dx / radius) * 115; 
+                        imgData.data[i+1] = 128 + (dy / radius) * 115; 
+                        imgData.data[i+2] = 128;
+                        imgData.data[i+3] = 255;
+                    }
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
+            const mapUrl = canvas.toDataURL();
+
+            // Inyectamos el filtro vectorial SVG con refracción física nativa acelerada por GPU
+            wrapper.innerHTML = `
+                <svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" style="display: block; position: absolute; inset:0;">
+                    <defs>
+                        <filter id="aaveGlassFilter" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
+                            <feImage href="${mapUrl}" result="displacementMap"/>
+                            <feDisplacementMap in="SourceGraphic" in2="displacementMap" scale="40" xChannelSelector="R" yChannelSelector="G"/>
+                            <feGaussianBlur in="SourceGraphic" stdDeviation="1.2" result="blur"/>
+                            <feComposite in="blur" in2="SourceGraphic" operator="arithmetic" k1="0" k2="1" k3="1" k4="0"/>
+                        </filter>
+                    </defs>
+                    <rect width="${w}" height="${h}" rx="40" ry="40" 
+                          fill="rgba(255, 255, 255, 0.04)" 
+                          filter="url(#aaveGlassFilter)"
+                          stroke="rgba(255, 255, 255, 0.15)" 
+                          stroke-width="1.5"/>
+                </svg>
+            `;
+        }
+
+        // Ejecución inicial al cargar
+        window.addEventListener('DOMContentLoaded', applyAaveGlass);
+        // Recalcular refracción si cambia el tamaño de la pantalla para máxima consistencia visual
+        window.addEventListener('resize', applyAaveGlass);
+    </script>
+</body>
+</html>
