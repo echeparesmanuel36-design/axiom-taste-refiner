@@ -18,3 +18,10 @@ const premiumPrompt = refinePrompt(raw, 'premium');
 
 console.log(premiumPrompt);
 ```
+## 🛠️ Setup
+1.​Clone the repository into your local architecture setup.
+
+2.​Initialize runtime environment:
+```bash
+npm install
+```
