@@ -25,3 +25,4 @@ console.log(premiumPrompt);
 ```bash
 npm install
 ```
+3.​Run or bundle directly into your internal AI agent pipelines or automation frameworks.
