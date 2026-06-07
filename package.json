@@ -1,0 +1,8 @@
+{
+  "name": "axiom-taste-refiner",
+  "version": "1.0.0",
+  "description": "Premium prompt styling injector framework",
+  "main": "refiner.js",
+  "type": "module",
+  "dependencies": {}
+}
