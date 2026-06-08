@@ -1,0 +1,22 @@
+{
+  "name": "Axiom Taste Refiner — Prompt Architecture",
+  "short_name": "Axiom Taste",
+  "description": "Inyector de estilo y personalidad para prompts. Eleva outputs de IA con soberanía estilística total.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#06070B",
+  "theme_color": "#06070B",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "assets/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
